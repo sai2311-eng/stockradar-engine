@@ -1,0 +1,8 @@
+# The engine core has ZERO required runtime dependencies — it runs on the
+# Python standard library alone. The packages below are optional conveniences.
+
+# Optional: load config from a .env file (config/settings.py degrades gracefully without it)
+python-dotenv>=1.0.0
+
+# Optional: run the test suite
+pytest>=7.0.0
