@@ -8,6 +8,7 @@ This package contains NO strategies of its own. It provides:
   - MarketContext: the read-only snapshot a strategy receives (engine/context.py)
   - registry     : auto-discovery of strategies in the strategies/ package
   - Runner       : the scheduler/loop that drives strategies (engine/runner.py)
+  - Backtester   : replays history through the same strategies (engine/backtest.py)
 
 Drop your own strategy file into strategies/ and it is picked up automatically.
 See README.md for a walkthrough.
@@ -18,6 +19,7 @@ from engine.signal import Signal, Side
 from engine.context import MarketContext
 from engine.registry import register, discover, get_registry
 from engine.runner import Runner
+from engine.backtest import Backtester, BacktestResult, ReplayFeed
 
 __all__ = [
     "BaseStrategy",
@@ -28,4 +30,7 @@ __all__ = [
     "discover",
     "get_registry",
     "Runner",
+    "Backtester",
+    "BacktestResult",
+    "ReplayFeed",
 ]

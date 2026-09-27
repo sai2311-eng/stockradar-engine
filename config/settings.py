@@ -40,6 +40,32 @@ def require(key: str) -> str:
 TICK_INTERVAL_SEC = int(get("TICK_INTERVAL_SEC", "60"))
 LOG_LEVEL = get("LOG_LEVEL", "INFO")
 
+# ── Market ───────────────────────────────────────────────────────────────
+# Exchange whose calendar/hours/time zone apply (see markets/). Empty = none:
+# tick around the clock and treat CSV timestamps as UTC.
+MARKET = get("MARKET", "").strip().upper()
+
+# Directory of OHLCV CSV files for CSVDataFeed. Empty = NullDataFeed.
+DATA_DIR = get("DATA_DIR", "").strip()
+
 # ── Universe ─────────────────────────────────────────────────────────────
 # Comma-separated symbols the runner exposes to strategies. Override in .env.
-UNIVERSE = [s.strip() for s in get("UNIVERSE", "").split(",") if s.strip()]
+# "@NAME" expands a named universe from markets/, e.g. UNIVERSE=@DAX40.
+def _parse_universe(raw: str) -> list[str]:
+    out: list[str] = []
+    for item in (s.strip() for s in raw.split(",")):
+        if not item:
+            continue
+        if item.startswith("@"):
+            from markets import UNIVERSES
+            try:
+                out.extend(UNIVERSES[item[1:].upper()])
+            except KeyError:
+                raise ValueError(f"Unknown universe {item!r}. "
+                                 f"Known: {', '.join('@' + k for k in UNIVERSES)}") from None
+        else:
+            out.append(item)
+    return list(dict.fromkeys(out))  # de-duplicate, keep order
+
+
+UNIVERSE = _parse_universe(get("UNIVERSE", ""))

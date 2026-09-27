@@ -26,3 +26,6 @@ htmlcov/
 Thumbs.db
 .idea/
 .vscode/
+
+# Market data (downloaded CSVs — licensing: do not redistribute)
+data/csv/

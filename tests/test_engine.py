@@ -12,8 +12,21 @@ from engine.strategy import BaseStrategy
 from data.feed import DataFeed, Candle, NullDataFeed
 
 
+def fresh_discover(package="strategies"):
+    """
+    Clear the registry and re-import strategy modules. A plain discover() after
+    clear() finds nothing, because Python does not re-run already-imported
+    modules — so their @register decorators never fire again.
+    """
+    import sys
+    clear()
+    for name in [m for m in sys.modules if m.startswith(package + ".")]:
+        del sys.modules[name]
+    return discover(package)
+
+
 def test_discover_finds_example():
-    reg = discover("strategies")
+    reg = fresh_discover()
     assert "example_price_threshold" in reg
 
 
@@ -47,11 +60,11 @@ def test_register_and_run_custom_strategy():
 
 
 def test_null_feed_yields_no_signals_from_example():
-    clear()
-    discover("strategies")
+    fresh_discover()
     runner = Runner(
         context_factory=lambda: MarketContext(feed=NullDataFeed(), universe=["ACME"]),
     )
+    assert [s.name for s in runner.strategies] == ["example_price_threshold"]
     # NullDataFeed returns no prices, so the price-threshold example emits nothing.
     assert runner.tick() == []
 
